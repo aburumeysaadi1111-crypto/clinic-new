@@ -292,10 +292,15 @@ function updateNoticeBoard() {
         const announcement =
             getActiveAnnouncement();
 
+        /* ማስታወቂያ ከሌለ በ index.html ውስጥ የተጻፈውን ነባሪ ጽሑፍ ያሳያል */
+        if (announcementBox.dataset.defaultText === undefined) {
+            announcementBox.dataset.defaultText =
+                announcementBox.textContent;
+        }
         announcementBox.textContent =
             announcement
                 ? announcement.message
-                : "ከታች ያሉትን ሜኑዎች በመጫን ስቶክ፣ ሽያጭ፣ ዲቤ፣ ወጪ እና ሪፖርት ይከታተሱ።";
+                : announcementBox.dataset.defaultText;
 
     }
 
