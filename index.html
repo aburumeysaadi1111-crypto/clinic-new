@@ -1,0 +1,906 @@
+
+
+<!DOCTYPE html>
+<html lang="am">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>የክሊኒክ ሲስተም</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- ======================================
+     ACTIVATION SCREEN (license gate)
+====================================== -->
+
+<div
+    id="activationScreen"
+    class="login-screen"
+    style="display:none;"
+>
+
+    <div class="login-box">
+
+        <h1>
+            🔒 የፍቃድ ማረጋገጫ
+        </h1>
+
+        <p>
+            Device ID
+            (ይህን ገልብጠው ለሻጭዎ ይላኩ):
+        </p>
+
+        <p
+            id="deviceIdDisplay"
+            class="device-id-box"
+        >
+            -
+        </p>
+
+        <p
+            id="activationStatus"
+            class="activation-status"
+        ></p>
+
+        <button onclick="handleRetryActivation()">
+            🔄 እንደገና ሞክር
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- ======================================
+     LOGIN SCREEN
+====================================== -->
+
+<div
+    id="loginScreen"
+    class="login-screen"
+>
+
+    <div class="login-box">
+
+        <h1>
+             የክሊኒክ ሲስተም
+        </h1>
+
+        <p>
+            እባክዎ ይግቡ
+        </p>
+
+        <form id="loginForm">
+
+            <label>
+                የተጠቃሚ ስም
+            </label>
+
+            <input
+                type="text"
+                id="loginUsername"
+                required
+            >
+
+            <label>
+                የይለፍ ቃል
+            </label>
+
+            <input
+                type="password"
+                id="loginPassword"
+                required
+            >
+
+            <button type="submit">
+                🔑 ግባ
+            </button>
+
+        </form>
+
+        <p
+            id="loginError"
+            class="login-error"
+        ></p>
+
+    </div>
+
+</div>
+
+
+
+<!-- ======================================
+     APP CONTAINER (hidden until login)
+====================================== -->
+
+<div
+    id="appContainer"
+    style="display:none;"
+>
+
+
+<!-- ======================================
+     HEADER
+====================================== -->
+
+<header class="topbar">
+
+    <div class="clinic-name">
+        የክሊኒክ ሲስተም
+    </div>
+
+    <div class="page-title">
+        ዳሽቦርድ
+    </div>
+
+    <div class="admin-area">
+
+        <span id="currentUserName">
+            👤 አድሚን
+        </span>
+
+        <button
+            id="logoutBtn"
+            onclick="handleLogout()"
+        >
+            🚪 ውጣ
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<!-- ======================================
+     NAVIGATION (back-to-dashboard link only —
+     ዋናው ናቪጌሽን ከታች ባለው የዳሽቦርድ ግሪድ በኩል ነው)
+====================================== -->
+
+
+
+
+
+<!-- ======================================
+     MAIN
+====================================== -->
+
+<main>
+
+
+<!-- ======================================
+     DASHBOARD
+====================================== -->
+
+<section
+    id="dashboard"
+    class="page-section"
+>
+
+    <div class="dashboard-notice">
+
+        <h3>
+            📌 አሁን ምን ምን አለ
+        </h3>
+
+        <p id="dashNoticeAnnouncement">
+            ከታች ያሉትን ሜኑዎች በመጫን እባከወትን ስራዎን በአግባቡ ይወጡ።
+        </p>
+
+        <p>
+            🧑‍🤝‍🧑 ካሸር ላይ አሁን የሚጠብቁ:
+            <strong id="dashNoticeCashierCount">0</strong>
+            ሰው
+        </p>
+
+        <span
+            id="dashNoticeRequestsBadge"
+            style="display:none; background:#c0392b; color:white; padding:4px 10px; border-radius:12px; font-size:13px;"
+        ></span>
+
+    </div>
+
+
+    <div class="home-grid">
+
+        <div class="home-tile" onclick="guardedShowPage('patients')">
+            <div class="home-tile-icon">🗂️</div>
+            <div class="home-tile-label">ካርድ ክፍል</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('payments')">
+            <div class="home-tile-icon">💰</div>
+            <div class="home-tile-label">ካሸር</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('doctors')">
+            <div class="home-tile-icon">🩺</div>
+            <div class="home-tile-label">ሀኪሞች</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('laboratory')">
+            <div class="home-tile-icon">🧪</div>
+            <div class="home-tile-label">ላቦራቶሪ</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('radiology')">
+            <div class="home-tile-icon">🩻</div>
+            <div class="home-tile-label">ራጅ/ኤክስሬይ</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('pharmacy')">
+            <div class="home-tile-icon">💊</div>
+            <div class="home-tile-label">ፋርማሲ</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('emergency')" style="border:2px solid #c0392b;">
+            <div class="home-tile-icon">🚨</div>
+            <div class="home-tile-label">ኤመርጀንሲ</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('reports')">
+            <div class="home-tile-icon">📊</div>
+            <div class="home-tile-label">ጠቅላላ ሪፖርት</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('security')">
+            <div class="home-tile-icon">🔐</div>
+            <div class="home-tile-label">ደህንነት</div>
+        </div>
+
+        <div class="home-tile" onclick="guardedShowPage('recycle')">
+            <div class="home-tile-icon">🗑️</div>
+            <div class="home-tile-label">ቆሻሻ</div>
+        </div>
+
+    </div>
+
+
+    <!-- ቁጥሮች (dashboard cards) still tracked here for other scripts to update, hidden from view -->
+    <div class="cards" style="display:none;">
+
+        <div class="card"><h3>ካርድ ክፍል</h3><strong id="patientCount">0</strong></div>
+        <div class="card"><h3>ሀኪሞች</h3><strong id="doctorCount">0</strong></div>
+        <div class="card"><h3>ላቦራቶሪ</h3><strong id="labCount">0</strong></div>
+        <div class="card"><h3>ፋርማሲ</h3><strong id="pharmacyCount">0</strong></div>
+        <div class="card"><h3>ካሸር</h3><strong id="paymentCount">0</strong></div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     PATIENTS
+====================================== -->
+
+<section
+    id="patients"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        🗂️ ካርድ ክፍል
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+    <button onclick="handleSendDepartmentRequest('ካርድ ክፍል')" style="background:#2f6fed;">
+        📨 ለAdmin መልእክት ላክ
+    </button>
+
+
+    <div id="patientsContent">
+
+        <h2>
+             አዲስ ታካሚ መመዝገቢያ
+        </h2>
+
+
+        <form
+            id="patientForm"
+            class="clinic-form"
+        >
+
+
+            <label>
+                ስም
+            </label>
+
+            <input
+                type="text"
+                id="patientFirstName"
+                required
+            >
+
+
+            <label>
+                የአባት ስም
+            </label>
+
+            <input
+                type="text"
+                id="patientFatherName"
+                required
+            >
+
+
+            <label>
+                የአያት ስም
+            </label>
+
+            <input
+                type="text"
+                id="patientGrandfatherName"
+            >
+
+
+            <label>
+                ፆታ
+            </label>
+
+            <select
+                id="patientGender"
+                required
+            >
+
+                <option value="">
+                    ፆታ ይምረጡ
+                </option>
+
+                <option value="ወንድ">
+                    ወንድ
+                </option>
+
+                <option value="ሴት">
+                    ሴት
+                </option>
+
+            </select>
+
+
+            <label>
+                ዕድሜ
+            </label>
+
+            <input
+                type="number"
+                id="patientAge"
+                min="0"
+                required
+            >
+
+
+            <label>
+                ስልክ
+            </label>
+
+            <input
+                type="tel"
+                id="patientPhone"
+            >
+
+
+            <label>
+                ቀበሌ
+            </label>
+
+            <input
+                type="text"
+                id="patientKebele"
+            >
+
+
+            <label>
+                አድራሻ
+            </label>
+
+            <input
+                type="text"
+                id="patientAddress"
+            >
+
+
+            <label>
+                የደም አይነት
+            </label>
+
+            <select
+                id="patientBloodType"
+            >
+
+                <option value="">
+                    ይምረጡ
+                </option>
+
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+                <option>O+</option>
+                <option>O-</option>
+
+            </select>
+
+
+            <label>
+                የአስቸኳይ ጊዜ ስልክ
+            </label>
+
+            <input
+                type="tel"
+                id="patientEmergency"
+            >
+
+
+            <br><br>
+
+
+            <button type="submit">
+                💾 ታካሚውን መዝግብ
+            </button>
+
+
+        </form>
+
+
+        <hr>
+
+
+        <h2>
+            🔎 የታካሚ ፍለጋ
+        </h2>
+
+
+        <input
+            type="text"
+            id="patientSearch"
+            placeholder="በID፣ በስም ወይም በስልክ ፈልግ..."
+            oninput="displayPatients()"
+        >
+
+
+        <div id="patientList"></div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     DOCTORS
+====================================== -->
+
+<section
+    id="doctors"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        🩺 ሀኪሞች
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+
+    <div id="doctorsContent">
+
+        <p>
+            የዶክተር መመዝገቢያ
+            እዚህ ይገነባል።
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     LABORATORY
+====================================== -->
+
+<section
+    id="laboratory"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        🧪 ላቦራቶሪ
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+    <button onclick="handleSendDepartmentRequest('ላቦራቶሪ')" style="background:#2f6fed;">
+        📨 ለAdmin መልእክት ላክ
+    </button>
+
+
+    <div id="laboratoryContent">
+
+        <p>
+            የላብ ትዕዛዝና ውጤት
+            ገጽ እዚህ ይገነባል።
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     RADIOLOGY (ራጅ/ኤክስሬይ)
+====================================== -->
+
+<section
+    id="radiology"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        🩻 ራጅ/ኤክስሬይ
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+    <button onclick="handleSendDepartmentRequest('ራጅ/ኤክስሬይ')" style="background:#2f6fed;">
+        📨 ለAdmin መልእክት ላክ
+    </button>
+
+
+    <div id="radiologyContent">
+
+        <p>
+            የራጅ ትዕዛዝና ውጤት
+            ገጽ እዚህ ይገነባል።
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     PHARMACY
+====================================== -->
+
+<section
+    id="pharmacy"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        💊 ፋርማሲ
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+    <button onclick="handleSendDepartmentRequest('ፋርማሲ')" style="background:#2f6fed;">
+        📨 ለAdmin መልእክት ላክ
+    </button>
+
+
+    <div id="pharmacyContent">
+
+        <p>
+            የመድሃኒት ትዕዛዝና
+            መስጫ ገጽ እዚህ ይገነባል።
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     EMERGENCY (ኤመርጀንሲ)
+====================================== -->
+
+<section
+    id="emergency"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1 style="color:#c0392b;">
+        🚨 ኤመርጀንሲ
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+    <button onclick="handleSendDepartmentRequest('ኤመርጀንሲ')" style="background:#2f6fed;">
+        📨 ለAdmin መልእክት ላክ
+    </button>
+
+
+    <div id="emergencyContent">
+
+        <p>
+            የኤመርጀንሲ ታካሚ ምዝገባ
+            ገጽ እዚህ ይገነባል።
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     PAYMENTS
+====================================== -->
+
+<section
+    id="payments"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        💰 ካሸር
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+    <button onclick="handleSendDepartmentRequest('ካሸር')" style="background:#2f6fed;">
+        📨 ለAdmin መልእክት ላክ
+    </button>
+
+
+    <div id="paymentsContent">
+
+        <p>
+            የክፍያና Receipt
+            ገጽ እዚህ ይገነባል።
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     REPORTS
+====================================== -->
+
+<section
+    id="reports"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        📊 ሪፖርት
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+
+    <div id="reportsContent">
+
+        <p>
+            የክሊኒክ ሪፖርት
+            እዚህ ይገነባል።
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     SECURITY
+====================================== -->
+
+<section
+    id="security"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        🔐 ደህንነት
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+
+    <div id="securityContent">
+
+        <p>
+            Admin እና የተጠቃሚ
+            መቆጣጠሪያ እዚህ ይገነባል።
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     RECYCLE BIN (ቆሻሻ ማጠራቀሚያ)
+====================================== -->
+
+<section
+    id="recycle"
+    class="page-section"
+    style="display:none;"
+>
+
+    <h1>
+        🗑️ ቆሻሻ ማጠራቀሚያ
+    </h1>
+
+
+    <button onclick="showPage('dashboard')">
+        ← ወደ ዳሽቦርድ
+    </button>
+
+
+    <div id="recycleContent">
+
+        <p>
+            የተሰረዙ ንጥሎች እዚህ ይታያሉ።
+        </p>
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+
+<!-- ======================================
+     FOOTER
+====================================== -->
+
+<footer>
+
+    🏥 የክሊኒክ ሲስተም
+    © 2026
+
+</footer>
+
+
+</div>
+<!-- END #appContainer -->
+
+
+
+<!-- ======================================
+     ETHIOPIAN CALENDAR (loaded first)
+====================================== -->
+
+<script src="ethiopian-date.js"></script>
+
+
+<!-- ======================================
+     FIREBASE (Cloud Backup)
+====================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script src="backup.js"></script>
+
+<script src="firestore-sync.js"></script>
+
+<script src="license.js"></script>
+
+
+<!-- ======================================
+     JAVASCRIPT FILES
+====================================== -->
+
+<script src="security.js"></script>
+
+<script src="patients.js"></script>
+
+<script src="lab-catalog.js"></script>
+
+<script src="doctors.js"></script>
+
+<script src="laboratory.js"></script>
+
+<script src="radiology.js"></script>
+
+<script src="diagnostics.js"></script>
+
+<script src="pharmacy.js"></script>
+<script src="emergency.js"></script>
+
+<script src="payments.js"></script>
+
+<script src="reports.js"></script>
+
+<script src="phem-report.js"></script>
+
+<script src="recycle.js"></script>
+
+<script src="notices.js"></script>
+
+<script src="app.js"></script>
+
+<script>
+// ኢንተርኔት ሳይኖር መተግበሪያው እንዲከፈት (Service Worker)።
+// በ https ድረ ገጽ ላይ ብቻ ይነቃል፤ በፋይል ወይም በ localhost አይነቃም።
+(function () {
+  try {
+    var h = location.hostname;
+    if ('serviceWorker' in navigator && location.protocol === 'https:' && h !== 'localhost' && h !== '127.0.0.1') {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+      });
+    }
+  } catch (e) {}
+})();
+</script>
+
+</body>
+
+</html>
