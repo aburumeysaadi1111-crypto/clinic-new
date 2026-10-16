@@ -907,7 +907,7 @@ async function createSecurityUser(userData) {
 }
 
 // ==========================================
-// የዶክተር መግቢያ (username/password) ማስተዳደር
+// 🩺 የዶክተር መግቢያ (username/password) ማስተዳደር
 // doctors.js ዶክተር ሲፈጥር/ሲያርም ይህን ይጠራል
 // ==========================================
 
@@ -1943,7 +1943,7 @@ function displaySecurity() {
             <div class="security-form-container">
 
                 <h2>
-                    ➕ አዲስ ተጠቃሚ መመዝገቢያ
+                    አዲስ ተጠቃሚ መመዝገቢያ
                 </h2>
 
                 <p style="color:#52606d; font-size:14px;">
