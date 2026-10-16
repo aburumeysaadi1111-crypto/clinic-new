@@ -386,7 +386,7 @@ function recycleTypeLabel(type) {
 
     if (type === "DOCTOR_QUEUE") {
 
-        return "🩺 የሀኪም ወረፋ";
+        return "የሀኪም ወረፋ";
 
     }
 

@@ -434,7 +434,7 @@ function pageLabel(pageId) {
 
         patients: "🗂️ ካርድ ክፍል",
 
-        doctors: "🩺 ሀኪሞች",
+        doctors: "ሀኪሞች",
 
         laboratory: "🧪 ላቦራቶሪ",
 
