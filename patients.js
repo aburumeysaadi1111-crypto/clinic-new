@@ -225,7 +225,7 @@ function createPatientId() {
 
 
 /* =====================================================
-   ➕ CREATE PATIENT
+   CREATE PATIENT
 ===================================================== */
 
 function createPatient(data) {
@@ -475,7 +475,7 @@ function sendPatientToCashier(patientId) {
 
 
 /* =====================================================
-   SEND PATIENT DIRECTLY TO DOCTOR (ያለ ክፍያ)
+   🩺 SEND PATIENT DIRECTLY TO DOCTOR (ያለ ክፍያ)
    ------------------------------------------
    ክፍያ የማያስፈልገው ታካሚ (ለምሳሌ ተመላሽ ክትትል) ካሸር
    ሳያልፍ በቀጥታ ወደ ተመረጠው ዶክተር ይላካል።
@@ -512,7 +512,7 @@ function sendPatientDirectlyToDoctor(patientId) {
     }
 
     let message =
-        "ይህ ታካሚ ያለ ክፍያ ወደ የትኛው ዶክተር ይላክ? የዶክተር ID ያስገቡ:\n\n";
+        "🩺 ይህ ታካሚ ያለ ክፍያ ወደ የትኛው ዶክተር ይላክ? የዶክተር ID ያስገቡ:\n\n";
 
     doctors.forEach(
         function (doctor) {
@@ -574,7 +574,7 @@ function sendPatientDirectlyToDoctor(patientId) {
     }
 
     alert(
-        "ታካሚው ያለ ክፍያ በቀጥታ ወደ ዶክተር " +
+        "🩺 ታካሚው ያለ ክፍያ በቀጥታ ወደ ዶክተር " +
         doctor.firstName +
         " ተልኳል።"
     );
@@ -658,7 +658,7 @@ function getPatientHistory(patientId) {
 
 
 /* =====================================================
-   ➕ ADD HISTORY
+   ADD HISTORY
 ===================================================== */
 
 function addPatientHistory(
@@ -799,7 +799,7 @@ function patientStatusLabel(patient) {
                 : null;
 
         return (
-            "ከሀኪም ጋር" +
+            "🩺 ከሀኪም ጋር" +
             (
                 doctor
                     ? " (" + doctor.firstName + ")"
@@ -973,7 +973,7 @@ function displayPatients() {
                         ${
                             patient.status === "ካርድ"
                             ? `<button onclick="sendPatientToCashier('${patient.id}')" style="background:#0b5d45;">➡️ ወደ ካሸር ላክ (ክፍያ ካለው)</button>
-                               <button onclick="sendPatientDirectlyToDoctor('${patient.id}')" style="background:#2f6fed;">ወደ ሀኪም ላክ (ያለ ክፍያ)</button>`
+                               <button onclick="sendPatientDirectlyToDoctor('${patient.id}')" style="background:#2f6fed;">🩺 ወደ ሀኪም ላክ (ያለ ክፍያ)</button>`
                             : ""
                         }
 
@@ -1497,7 +1497,7 @@ function setupPatientSystem() {
                     "🪪 የታካሚ ID: " +
                     patient.id +
 
-                    "\n\nአሁን «➡️ ወደ ካሸር ላክ» (ክፍያ ካለው) ወይም «ወደ ሀኪም ላክ» (ክፍያ ከሌለው) የሚለውን ተጭነው መላክ ይችላሉ።"
+                    "\n\nአሁን «➡️ ወደ ካሸር ላክ» (ክፍያ ካለው) ወይም «🩺 ወደ ሀኪም ላክ» (ክፍያ ከሌለው) የሚለውን ተጭነው መላክ ይችላሉ።"
 
                 );
 

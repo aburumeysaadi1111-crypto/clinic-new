@@ -652,7 +652,7 @@ function displayPayments() {
         <div class="payment-form-container">
 
             <h2>
-                ➕ ክፍያ መዝግብ (ለያንዳንዱ አገልግሎት ለብቻ)
+                ክፍያ መዝግብ (ለያንዳንዱ አገልግሎት ለብቻ)
             </h2>
 
             <p style="color:#52606d; font-size:14px;">

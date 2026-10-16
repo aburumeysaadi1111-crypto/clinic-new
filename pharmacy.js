@@ -239,7 +239,7 @@ function getAllMedicines() {
 
 
 // ==========================================
-// ➕ ADD CUSTOM MEDICINE
+// ADD CUSTOM MEDICINE
 // ==========================================
 
 function addCustomMedicine(
@@ -772,7 +772,7 @@ function displayPharmacy() {
         <div class="pharmacy-form-container">
 
             <h2>
-                ➕ አዲስ Prescription
+                አዲስ Prescription
             </h2>
 
             <form
@@ -810,7 +810,7 @@ function displayPharmacy() {
                     style="grid-column:1/-1; background:#0b5d45; color:white; border:none; border-radius:8px; padding:10px; cursor:pointer;"
                     onclick="handleAddCustomMedicine()"
                 >
-                    ➕ አዲስ መድሃኒት ጨምር
+                    አዲስ መድሃኒት ጨምር
                 </button>
 
                 <div
@@ -861,14 +861,14 @@ function displayPharmacy() {
 }
 
 // ==========================================
-// ➕ ADD MEDICINE FROM PHARMACY PAGE
+// ADD MEDICINE FROM PHARMACY PAGE
 // ==========================================
 
 function handleAddCustomMedicine() {
 
     const name =
         prompt(
-            "➕ አዲስ የመድሃኒት ስም ያስገቡ:"
+            "አዲስ የመድሃኒት ስም ያስገቡ:"
         );
 
     if (name === null) {
