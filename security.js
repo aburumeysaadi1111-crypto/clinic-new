@@ -907,7 +907,7 @@ async function createSecurityUser(userData) {
 }
 
 // ==========================================
-// 🩺 የዶክተር መግቢያ (username/password) ማስተዳደር
+// የዶክተር መግቢያ (username/password) ማስተዳደር
 // doctors.js ዶክተር ሲፈጥር/ሲያርም ይህን ይጠራል
 // ==========================================
 
