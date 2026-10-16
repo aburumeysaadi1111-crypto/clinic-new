@@ -1142,7 +1142,7 @@ function displayReports() {
             </div>
 
             <div class="card">
-                <h3>🩺 ጠቅላላ የተመዘገበ ዶክተር</h3>
+                <h3>ጠቅላላ የተመዘገበ ዶክተር</h3>
                 <strong>${report.doctors.total}</strong>
             </div>
 
@@ -1201,7 +1201,7 @@ function displayReports() {
         </p>
 
         <h2>
-            🩺 ዶክተር ዝርዝር
+            ዶክተር ዝርዝር
         </h2>
 
         <p>
