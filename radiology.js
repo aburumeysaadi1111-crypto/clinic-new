@@ -254,7 +254,7 @@ function getFullRadiologyExamList() {
 
 
 /* ==========================================
-   ➕ CREATE RADIOLOGY ORDER
+   CREATE RADIOLOGY ORDER
    (ካሸር ክፍያ ከተቀበለ በኋላ ብቻ ነው የሚፈጠረው)
 ========================================== */
 

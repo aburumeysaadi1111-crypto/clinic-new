@@ -177,7 +177,7 @@ const laboratoryTests = [
 
 
 /* ==========================================
-   ➕ CREATE LAB ORDER
+   CREATE LAB ORDER
 ========================================== */
 
 function createLabOrder(

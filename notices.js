@@ -94,7 +94,7 @@ if (
 
 
 /* ==========================================
-   ➕ CREATE NOTICE
+   CREATE NOTICE
 ========================================== */
 
 function createNotice(data) {
