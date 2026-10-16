@@ -87,7 +87,7 @@ if (
 
 
 /* ==========================================
-   ➕ ADD TO RECYCLE BIN
+   ADD TO RECYCLE BIN
    type: "DOCTOR_QUEUE" | "LAB_ORDER" | "PRESCRIPTION"
 ========================================== */
 
@@ -386,7 +386,7 @@ function recycleTypeLabel(type) {
 
     if (type === "DOCTOR_QUEUE") {
 
-        return "የሀኪም ወረፋ";
+        return "🩺 የሀኪም ወረፋ";
 
     }
 
