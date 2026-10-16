@@ -120,6 +120,35 @@
             class="login-error"
         ></p>
 
+        <details style="margin-top:18px; text-align:center;">
+
+            <summary style="cursor:pointer; color:#0b5d45; font-weight:bold;">
+                📱 ይህን መሣሪያ ከሌላ መሣሪያ ጋር አገናኝ
+            </summary>
+
+            <p style="font-size:13px; margin:10px 0;">
+                በመጀመሪያው መሣሪያ (🔐 ደህንነት ክፍል) የተኮፒ የክሊኒክ መለያ
+                (CLINIC-...) እዚህ ይለጥፉ።
+            </p>
+
+            <input
+                type="text"
+                id="linkClinicIdInput"
+                placeholder="CLINIC-..."
+                autocomplete="off"
+                style="width:100%; box-sizing:border-box; margin-bottom:8px;"
+            >
+
+            <button
+                type="button"
+                onclick="restoreFromCloud(document.getElementById('linkClinicIdInput').value)"
+                style="width:100%;"
+            >
+                🔗 አገናኝ እና ዳታ አምጣ
+            </button>
+
+        </details>
+
     </div>
 
 </div>
