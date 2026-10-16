@@ -2,7 +2,7 @@
 
 /* =====================================================
    🏥 CLINIC SYSTEM
-   🩺 DOCTORS SYSTEM
+   DOCTORS SYSTEM
 ===================================================== */
 
 
@@ -179,7 +179,7 @@ function createDoctor(data) {
 
 
 /* =====================================================
-   🩺 GET ALL DOCTORS (used by reports.js)
+   GET ALL DOCTORS (used by reports.js)
 ===================================================== */
 
 function getDoctors() {
@@ -373,7 +373,7 @@ function searchDoctors(keyword = "") {
 
 
 /* =====================================================
-   🩺 DISPLAY DOCTORS PAGE
+   DISPLAY DOCTORS PAGE
    -----------------------------------------------------
    ADMIN → ሙሉ የዶክተር አስተዳደር (መመዝገቢያ/ማርም/መሰረዝ + መግቢያ)
    DOCTOR ራሱ ሲገባ → የራሱ ታካሚ ወረፋ ብቻ ያያል
@@ -599,7 +599,7 @@ function displayDoctors() {
         <div class="doctor-list-container">
 
             <h2>
-                🩺 የተመዘገቡ ዶክተሮች
+                የተመዘገቡ ዶክተሮች
             </h2>
 
 
@@ -962,7 +962,7 @@ function renderAdminDoctorQueueOverview() {
                         </p>
 
                         <p>
-                            <strong>🩺 ከዶክተር ጋር:</strong>
+                            <strong>ከዶክተር ጋር:</strong>
                             ${
                                 doctor
                                     ? escapeDoctorText(doctor.firstName) + " " + escapeDoctorText(doctor.fatherName) + " (" + escapeDoctorText(doctor.id) + ")"
@@ -1041,7 +1041,7 @@ function renderDoctorList() {
                     <div class="patient-item">
 
                         <h3>
-                            🩺
+                            
                             ${escapeDoctorText(
                                 doctor.firstName
                             )}
@@ -1064,7 +1064,7 @@ function renderDoctorList() {
 
                         <p>
                             <strong>
-                                🩺 ስፔሻሊቲ:
+                                ስፔሻሊቲ:
                             </strong>
 
                             ${escapeDoctorText(
@@ -1257,7 +1257,7 @@ function viewDoctor(doctorId) {
 
     alert(
 
-        "🩺 የዶክተር መረጃ\n\n" +
+        "የዶክተር መረጃ\n\n" +
 
         "Doctor ID: " +
         doctor.id +
@@ -1313,7 +1313,7 @@ function updateDoctorCount() {
 
 
 /* =====================================================
-   🩺 DOCTOR'S OWN QUEUE (ራሱ ሀኪም ሲገባ የሚያየው ገጽ)
+   DOCTOR'S OWN QUEUE (ራሱ ሀኪም ሲገባ የሚያየው ገጽ)
 ===================================================== */
 
 function renderDoctorOwnQueue(doctorId) {
@@ -1437,7 +1437,7 @@ function renderDoctorOwnQueue(doctorId) {
                         <button
                             onclick="renderDoctorPatientCard('${doctorId}','${patient.id}')"
                         >
-                            🩺 ክፈት
+                            ክፈት
                         </button>
 
                         <button
@@ -1481,7 +1481,7 @@ function renderDoctorOwnQueue(doctorId) {
 
 
 /* =====================================================
-   🩺 የታካሚ ካርድ (እውነተኛ ገጽ - popup/prompt አይደለም)
+   የታካሚ ካርድ (እውነተኛ ገጽ - popup/prompt አይደለም)
 ===================================================== */
 
 function renderDoctorPatientCard(
@@ -1534,7 +1534,7 @@ function renderDoctorPatientCard(
                             <p>
                                 🕒 ${escapeDoctorText(item.date)}
                                 —
-                                🩺 ${escapeDoctorText(item.doctorName || item.doctorId || "-")}
+                                ${escapeDoctorText(item.doctorName || item.doctorId || "-")}
                             </p>
 
                             <p>
@@ -2331,7 +2331,7 @@ function handleSubmitPrescription(
 
 
 /* =====================================================
-   🩺 OPEN MEDICAL CARD (legacy - prompt based, kept for
+   OPEN MEDICAL CARD (legacy - prompt based, kept for
    the admin ID-lookup path only)
 ===================================================== */
 
@@ -3309,7 +3309,7 @@ function openDoctorPatient(doctorId) {
 
 
 /* =====================================================
-   🩺 DOCTOR MEDICAL CARD
+   DOCTOR MEDICAL CARD
 ===================================================== */
 
 function openDoctorMedicalCard(
@@ -3319,7 +3319,7 @@ function openDoctorMedicalCard(
 
     let message =
 
-        "🩺 የታካሚ መረጃ\n\n" +
+        "የታካሚ መረጃ\n\n" +
 
         "ታካሚ ID: " +
         patient.id +
