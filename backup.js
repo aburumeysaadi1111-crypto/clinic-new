@@ -180,6 +180,8 @@ function initFirebaseBackup() {
                 new Promise(
                     function (resolve) {
 
+                        let anonymousStarted = false;
+
                         const unsubscribe =
                             firebase.auth()
                                 .onAuthStateChanged(
@@ -191,25 +193,34 @@ function initFirebaseBackup() {
 
                                             resolve(true);
 
+                                            return;
+
+                                        }
+
+                                        /* የተቀመጠ መግቢያ (የክሊኒክ መለያ ጨምሮ) ከሌለ ብቻ
+                                           ስም-አልባ መግቢያ ይጀምራል፤ ያለዚያ
+                                           የክሊኒክ መለያውን ይተካዋል */
+                                        if (!anonymousStarted) {
+
+                                            anonymousStarted = true;
+
+                                            firebase.auth()
+                                                .signInAnonymously()
+                                                .catch(
+                                                    function (error) {
+
+                                                        console.error(
+                                                            "Firebase anonymous auth failed:",
+                                                            error
+                                                        );
+
+                                                    }
+                                                );
+
                                         }
 
                                     }
                                 );
-
-                        firebase.auth()
-                            .signInAnonymously()
-                            .catch(
-                                function (error) {
-
-                                    /* ኢንተርኔት ከሌለ ቀደም ሲል የተቀመጠ መግቢያ ካለ
-                                       onAuthStateChanged ራሱ ይፈታዋል */
-                                    console.error(
-                                        "Firebase anonymous auth failed:",
-                                        error
-                                    );
-
-                                }
-                            );
 
                         setTimeout(
                             function () { resolve(false); },
@@ -218,6 +229,24 @@ function initFirebaseBackup() {
 
                     }
                 );
+
+            /* የክሊኒክ መለያ ሁኔታ ማሳያ (መግቢያ ገጹ ላይ) */
+            try {
+
+                firebase.auth()
+                    .onAuthStateChanged(
+                        function (user) {
+
+                            updateCloudAccountStatus(user);
+
+                        }
+                    );
+
+            } catch (error) {
+
+                console.warn(error);
+
+            }
 
         }
 
@@ -994,5 +1023,211 @@ function handleRestoreFromCloud() {
     restoreFromCloud(
         value || getClinicBackupId()
     );
+
+}
+
+
+/* ==========================================
+   🔑 የክሊኒክ መለያ (Firebase ኢሜይል + የይለፍ ቃል)
+   ------------------------------------------
+   ክሊኒኩ አንድ የ Firebase መለያ ይኖረዋል። መሳሪያው አንድ ጊዜ
+   በዚህ መለያ ሲገባ ይቀመጣል። Firestore ደንቦች ከዚህ በኋላ
+   Clinic ID ብቻ በቂ አይደለም ብለው ይህን መለያ ይጠይቃሉ።
+========================================== */
+
+function isClinicAccountSignedIn() {
+
+    try {
+
+        const user =
+            firebase.auth().currentUser;
+
+        return !!(
+            user &&
+            !user.isAnonymous
+        );
+
+    } catch (error) {
+
+        return false;
+
+    }
+
+}
+
+
+function updateCloudAccountStatus(user) {
+
+    const box =
+        document.getElementById(
+            "cloudAccountStatus"
+        );
+
+    if (!box) {
+
+        return;
+
+    }
+
+    if (user && !user.isAnonymous) {
+
+        box.textContent =
+            "☁️ የክሊኒክ መለያ፦ ✅ ተገናኝቷል";
+
+    } else {
+
+        box.textContent =
+            "☁️ የክሊኒክ መለያ፦ ⚠️ አልተገናኘም";
+
+    }
+
+}
+
+
+async function signInClinicAccount(email, password) {
+
+    if (!initFirebaseBackup()) {
+
+        alert(
+            "❌ Cloud Backup ገና አልተዋቀረም ወይም ኢንተርኔት የለም።"
+        );
+
+        return false;
+
+    }
+
+    try {
+
+        await waitForFirebaseAuth();
+
+        await firebase.auth()
+            .signInWithEmailAndPassword(
+                String(email || "").trim(),
+                String(password || "")
+            );
+
+        return true;
+
+    } catch (error) {
+
+        const code =
+            error && error.code
+                ? error.code
+                : "";
+
+        if (
+            code === "auth/network-request-failed"
+        ) {
+
+            alert(
+                "❌ ኢንተርኔት የለም። ኢንተርኔት ያገናኙና እንደገና ይሞክሩ።"
+            );
+
+        } else if (
+            code === "auth/too-many-requests"
+        ) {
+
+            alert(
+                "❌ ብዙ ጊዜ ሞክረዋል። ጥቂት ደቂቃ ቆይተው እንደገና ይሞክሩ።"
+            );
+
+        } else if (
+            code === "auth/operation-not-allowed"
+        ) {
+
+            alert(
+                "❌ በ Firebase ውስጥ 'ኢሜይል/የይለፍ ቃል' መግቢያ አልበራም። ገንቢውን ያናግሩ።"
+            );
+
+        } else {
+
+            alert(
+                "❌ ኢሜይሉ ወይም የይለፍ ቃሉ ትክክል አይደለም።"
+            );
+
+        }
+
+        return false;
+
+    }
+
+}
+
+
+/* መግቢያ ገጹ ላይ ያለው '📱 ይህን መሣሪያ አገናኝ' አዝራር */
+async function linkDeviceToClinic() {
+
+    const emailInput =
+        document.getElementById(
+            "linkClinicEmailInput"
+        );
+
+    const passwordInput =
+        document.getElementById(
+            "linkClinicPasswordInput"
+        );
+
+    const idInput =
+        document.getElementById(
+            "linkClinicIdInput"
+        );
+
+    const email =
+        emailInput
+            ? emailInput.value.trim()
+            : "";
+
+    const password =
+        passwordInput
+            ? passwordInput.value
+            : "";
+
+    const clinicId =
+        idInput
+            ? idInput.value.trim()
+            : "";
+
+    if (!email || !password) {
+
+        alert(
+            "የክሊኒክ ኢሜይል እና የይለፍ ቃል ያስገቡ።"
+        );
+
+        return;
+
+    }
+
+    const ok =
+        await signInClinicAccount(
+            email,
+            password
+        );
+
+    if (!ok) {
+
+        return;
+
+    }
+
+    if (passwordInput) {
+
+        passwordInput.value = "";
+
+    }
+
+    if (clinicId) {
+
+        /* አዲስ መሣሪያ፦ Clinic ID ተለጥፏል፤ ውሂቡ ከcloud ይመጣል */
+        await restoreFromCloud(clinicId);
+
+        return;
+
+    }
+
+    alert(
+        "✅ የክሊኒክ መለያ ተገናኝቷል። ገጹ እንደገና ይከፈታል።"
+    );
+
+    location.reload();
 
 }

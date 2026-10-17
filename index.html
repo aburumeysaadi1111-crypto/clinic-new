@@ -120,31 +120,55 @@
             class="login-error"
         ></p>
 
-        <details style="margin-top:18px; text-align:center;">
+        <p
+            id="cloudAccountStatus"
+            style="text-align:center; font-size:13px; margin-top:14px;"
+        >
+            ☁️ የክሊኒክ መለያ፦ ...
+        </p>
+
+        <details style="margin-top:10px; text-align:center;">
 
             <summary style="cursor:pointer; color:#0b5d45; font-weight:bold;">
-                📱 ይህን መሣሪያ ከሌላ መሣሪያ ጋር አገናኝ
+                📱 ይህን መሣሪያ ከክሊኒኩ ጋር አገናኝ
             </summary>
 
             <p style="font-size:13px; margin:10px 0;">
-                በመጀመሪያው መሣሪያ (🔐 ደህንነት ክፍል) የተኮፒ የክሊኒክ መለያ
-                (CLINIC-...) እዚህ ይለጥፉ።
+                የክሊኒክ ኢሜይልና የይለፍ ቃል ያስገቡ። አዲስ መሣሪያ ከሆነ ብቻ
+                የክሊኒክ መለያ (CLINIC-...) ከሌላ መሣሪያ ኮፒ አድርገው ይለጥፉ፤
+                አስቀድሞ የተገናኘ መሣሪያ ከሆነ ባዶ ይተዉት።
             </p>
+
+            <input
+                type="email"
+                id="linkClinicEmailInput"
+                placeholder="የክሊኒክ ኢሜይል"
+                autocomplete="off"
+                style="width:100%; box-sizing:border-box; margin-bottom:8px;"
+            >
+
+            <input
+                type="password"
+                id="linkClinicPasswordInput"
+                placeholder="የክሊኒክ መለያ የይለፍ ቃል"
+                autocomplete="off"
+                style="width:100%; box-sizing:border-box; margin-bottom:8px;"
+            >
 
             <input
                 type="text"
                 id="linkClinicIdInput"
-                placeholder="CLINIC-..."
+                placeholder="CLINIC-... (አዲስ መሣሪያ ከሆነ ብቻ)"
                 autocomplete="off"
                 style="width:100%; box-sizing:border-box; margin-bottom:8px;"
             >
 
             <button
                 type="button"
-                onclick="restoreFromCloud(document.getElementById('linkClinicIdInput').value)"
+                onclick="linkDeviceToClinic()"
                 style="width:100%;"
             >
-                🔗 አገናኝ እና ዳታ አምጣ
+                🔗 አገናኝ
             </button>
 
         </details>
