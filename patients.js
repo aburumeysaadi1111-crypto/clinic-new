@@ -101,6 +101,28 @@ function deletePatient(patientId) {
 
     }
 
+    /* መጀመሪያ ወደ ቆሻሻ (Recycle Bin) ይቀመጣል፤ Admin መልሶ ማምጣት ይችላል */
+    if (typeof addToRecycleBin === "function") {
+
+        const removedPatient =
+            patients[index];
+
+        addToRecycleBin(
+            "PATIENT_RECORD",
+            JSON.parse(
+                JSON.stringify(removedPatient)
+            ),
+            (
+                (removedPatient.name || "") +
+                " " +
+                (removedPatient.fatherName || "") +
+                " " +
+                (removedPatient.grandfatherName || "")
+            ).trim()
+        );
+
+    }
+
     patients.splice(index, 1);
 
     savePatients();
@@ -1342,7 +1364,7 @@ function handleDeletePatient(patientId) {
 
     const confirmDelete =
         confirm(
-            "ይህን ታካሚ መረጃ ሙሉ በሙሉ መሰረዝ ይፈልጋሉ? ይህ ተግባር መመለስ አይቻልም።"
+            "ይህን ታካሚ ወደ ቆሻሻ ማንቀሳቀስ ይፈልጋሉ? Admin ከቆሻሻ ክፍል መልሶ ማምጣት ይችላል።"
         );
 
     if (!confirmDelete) {

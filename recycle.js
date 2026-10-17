@@ -298,6 +298,58 @@ function restoreFromRecycleBin(trashId) {
 
     } else if (
         item.type ===
+        "PATIENT_RECORD"
+    ) {
+
+        if (
+            typeof patients === "undefined" ||
+            typeof savePatients !== "function"
+        ) {
+
+            alert("❌ ታካሚውን መመለስ አልተቻለም።");
+
+            return;
+
+        }
+
+        const alreadyExists =
+            patients.some(
+                function (p) {
+
+                    return (
+                        String(p.id).toLowerCase() ===
+                        String(item.payload.id).toLowerCase()
+                    );
+
+                }
+            );
+
+        if (alreadyExists) {
+
+            alert(
+                "ይህ ታካሚ አስቀድሞ በካርድ ክፍል አለ፤ ከቆሻሻ ብቻ ይወገዳል።"
+            );
+
+        } else {
+
+            patients.push(
+                item.payload
+            );
+
+            savePatients();
+
+            if (
+                typeof updatePatientCount === "function"
+            ) {
+
+                updatePatientCount();
+
+            }
+
+        }
+
+    } else if (
+        item.type ===
         "EXPENSE_RECORD"
     ) {
 
@@ -420,6 +472,12 @@ function recycleTypeLabel(type) {
 
     }
 
+    if (type === "PATIENT_RECORD") {
+
+        return "🗂️ የታካሚ ካርድ";
+
+    }
+
     return type;
 
 }
@@ -504,7 +562,10 @@ function displayRecycle() {
                         <p>
                             <strong>ታካሚ ID:</strong>
                             ${escapeRecycleText(
-                                (item.payload && item.payload.patientId) || "-"
+                                (item.payload && (
+                                    item.payload.patientId ||
+                                    (item.type === "PATIENT_RECORD" && item.payload.id)
+                                )) || "-"
                             )}
                         </p>
 
