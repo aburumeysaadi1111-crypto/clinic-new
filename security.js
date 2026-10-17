@@ -2140,6 +2140,16 @@ function displaySecurity() {
                             ☁️ አሁን Backup አድርግ
                         </button>
 
+                        <button
+                            onclick="rotateClinicId()"
+                            style="margin-top:8px; background:#b9770e;"
+                        >
+                            🔄 አዲስ Clinic ID ፍጠር
+                        </button>
+                        <p style="font-size:12px;">
+                            የድሮው ID ከታየ ወይም ከተጋራ አዲስ ID ይፍጠሩ። ያለው ውሂብ ወደ አዲሱ ID ይተላለፋል።
+                        </p>
+
                         <hr>
 
                         <h3>
@@ -2932,3 +2942,112 @@ document.addEventListener(
 
     }
 );
+
+
+/* ==========================================
+   🔄 ROTATE CLINIC ID
+   አዲስ Clinic ID ይፈጥራል፣ ያለውን ውሂብ ወደ አዲሱ ID
+   ከcloud ጋር ያስቀምጣል። ካልተሳካ ወደ ድሮው ID ይመለሳል።
+========================================== */
+
+async function rotateClinicId() {
+
+    if (
+        typeof isAdmin === "function" &&
+        !isAdmin()
+    ) {
+
+        alert("ይህን ስራ ለማድረግ Admin መሆን አለብዎት");
+
+        return;
+
+    }
+
+    if (
+        typeof generateClinicId !== "function" ||
+        typeof setClinicBackupId !== "function" ||
+        typeof runCloudBackup !== "function" ||
+        typeof initFirebaseBackup !== "function" ||
+        !initFirebaseBackup()
+    ) {
+
+        alert("❌ Cloud Backup ገና አልተዋቀረም ወይም ኢንተርኔት የለም።");
+
+        return;
+
+    }
+
+    const typed =
+        prompt(
+            "⚠️ አዲስ Clinic ID ሲፈጠር፦\n\n" +
+            "• ሌሎች መሳሪያዎች (ሌላ ስልክ/አሳሽ) ከአዲሱ ID ጋር እስኪገናኙ ድረስ ከዚህ መሳሪያ ጋር ውሂብ አይጋሩም።\n" +
+            "• የድሮው ID ውሂብ በcloud ላይ ይቆያል፤ በኋላ ከFirebase ይሰረዛል።\n\n" +
+            "ለማረጋገጥ 'አዲስ' ብለው ይጻፉ፦"
+        );
+
+    if (
+        String(typed || "").trim() !== "አዲስ"
+    ) {
+
+        return;
+
+    }
+
+    const oldId =
+        getClinicBackupId();
+
+    const newId =
+        generateClinicId();
+
+    try {
+
+        setClinicBackupId(newId);
+
+        localStorage.removeItem(
+            BACKUP_HASHES_STORAGE
+        );
+
+        const result =
+            await runCloudBackup(true);
+
+        if (!result || !result.ok) {
+
+            setClinicBackupId(oldId);
+
+            localStorage.removeItem(
+                BACKUP_HASHES_STORAGE
+            );
+
+            alert(
+                "❌ አዲሱ ID አልተሳካም፤ ወደ ድሮው ID ተመልሷል። " +
+                "ኢንተርኔት ያረጋግጡና እንደገና ይሞክሩ።"
+            );
+
+            return;
+
+        }
+
+        alert(
+            "✅ አዲስ Clinic ID ተፈጥሯል እና ውሂቡ ተቀምጧል።\n\n" +
+            "ከታች ባለው Cloud Backup ሳጥን '📋 ኮፒ' ተጭነው አዲሱን ID ይገልብጡ፤ " +
+            "ለክሊኒኩ መሳሪያዎች ብቻ ይስጡ። ገጹ እንደገና ይከፈታል።"
+        );
+
+        location.reload();
+
+    } catch (error) {
+
+        setClinicBackupId(oldId);
+
+        localStorage.removeItem(
+            BACKUP_HASHES_STORAGE
+        );
+
+        alert(
+            "❌ ስህተት ተፈጥሯል፤ ወደ ድሮው ID ተመልሷል፦ " +
+            error.message
+        );
+
+    }
+
+}
