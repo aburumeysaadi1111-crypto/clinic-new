@@ -684,41 +684,140 @@ function enterLabResult(
             ? getPatientById(order.patientId)
             : null;
 
-    const testRowsHtml =
-        order.tests.map(
-            function (test, index) {
+    /* ምርመራዎቹን እንደ ወረቀቱ በምድብ ማደራጀት */
+    const groups = [];
 
-                const range =
-                    typeof findLabTestRange === "function"
-                        ? findLabTestRange(test)
-                        : "";
+    const groupIndex = {};
 
-                const inputId =
-                    "labResultInput-" + index;
+    order.tests.forEach(
+        function (test, index) {
+
+            const category =
+                (
+                    typeof findLabTestCategory === "function"
+                        ? findLabTestCategory(test)
+                        : ""
+                ) || "ተጨማሪ (ሀኪሙ ያዘዘው)";
+
+            if (!(category in groupIndex)) {
+
+                groupIndex[category] =
+                    groups.length;
+
+                groups.push({
+                    category: category,
+                    items: []
+                });
+
+            }
+
+            groups[groupIndex[category]].items.push({
+                test: test,
+                index: index
+            });
+
+        }
+    );
+
+    const groupsHtml =
+        groups.map(
+            function (group) {
+
+                const rowsHtml =
+                    group.items.map(
+                        function (item) {
+
+                            const test =
+                                item.test;
+
+                            const meta =
+                                typeof getLabTestMeta === "function"
+                                    ? getLabTestMeta(test)
+                                    : null;
+
+                            const range =
+                                typeof findLabTestRange === "function"
+                                    ? findLabTestRange(test)
+                                    : "";
+
+                            const inputId =
+                                "labResultInput-" + item.index;
+
+                            let fieldHtml = "";
+
+                            if (meta && meta.options) {
+
+                                fieldHtml = `
+                                    <select
+                                        id="${inputId}"
+                                        class="lab-result-value"
+                                        data-test="${escapeLabText(test)}"
+                                        style="width:100%; margin-top:6px; min-height:42px;"
+                                    >
+                                        <option value="">— ምረጥ —</option>
+                                        ${
+                                            meta.options.map(
+                                                function (option) {
+
+                                                    return `<option value="${escapeLabText(option)}">${escapeLabText(option)}</option>`;
+
+                                                }
+                                            ).join("")
+                                        }
+                                    </select>
+                                `;
+
+                            } else {
+
+                                fieldHtml = `
+                                    <input
+                                        type="text"
+                                        id="${inputId}"
+                                        class="lab-result-value"
+                                        data-test="${escapeLabText(test)}"
+                                        data-flag-id="labFlag-${item.index}"
+                                        oninput="updateLabFlag(this)"
+                                        placeholder="ውጤት ያስገቡ${meta && meta.unit ? " (" + escapeLabText(meta.unit) + ")" : ""}"
+                                        style="width:100%; margin-top:6px;"
+                                    >
+                                `;
+
+                            }
+
+                            return `
+
+                                <div style="border:1px solid #d9e2ec; border-radius:8px; padding:10px; margin-bottom:8px; background:#f8fafc;">
+
+                                    <label style="display:flex; justify-content:space-between; gap:8px;">
+                                        <strong>${escapeLabText(test)}</strong>
+                                        ${
+                                            range
+                                            ? `<span style="color:#52606d; font-size:12px;">Normal: ${escapeLabText(range)}</span>`
+                                            : ""
+                                        }
+                                    </label>
+
+                                    ${fieldHtml}
+
+                                    <div
+                                        id="labFlag-${item.index}"
+                                        style="font-weight:bold; font-size:13px; margin-top:4px; min-height:16px;"
+                                    ></div>
+
+                                </div>
+
+                            `;
+
+                        }
+                    ).join("");
 
                 return `
 
-                    <div style="border:1px solid #d9e2ec; border-radius:8px; padding:10px; margin-bottom:8px; background:#f8fafc;">
+                    <h4 style="color:#0b5d45; margin:14px 0 6px;">
+                        ${escapeLabText(group.category)}
+                    </h4>
 
-                        <label style="display:flex; justify-content:space-between;">
-                            <strong>${escapeLabText(test)}</strong>
-                            ${
-                                range
-                                ? `<span style="color:#52606d; font-size:12px;">Normal: ${escapeLabText(range)}</span>`
-                                : ""
-                            }
-                        </label>
-
-                        <input
-                            type="text"
-                            id="${inputId}"
-                            class="lab-result-value"
-                            data-test="${escapeLabText(test)}"
-                            placeholder="ውጤት ያስገቡ"
-                            style="width:100%; margin-top:6px;"
-                        >
-
-                    </div>
+                    ${rowsHtml}
 
                 `;
 
@@ -744,9 +843,14 @@ function enterLabResult(
                     ? escapeLabText(patient.firstName) + " " + escapeLabText(patient.fatherName)
                     : escapeLabText(order.patientId)
             }
+            ${
+                order.note
+                ? `<br><strong>Clinical Data:</strong> ${escapeLabText(order.note)}`
+                : ""
+            }
         </p>
 
-        ${testRowsHtml}
+        ${groupsHtml}
 
         <button
             onclick="handleSubmitLabResult('${order.id}')"
@@ -756,6 +860,54 @@ function enterLabResult(
         </button>
 
     `;
+
+}
+
+
+/* ቁጥር ከመደበኛ ክልል ውጪ ከሆነ ወዲያው ምልክት ያሳያል */
+function updateLabFlag(input) {
+
+    const flagBox =
+        document.getElementById(
+            input.dataset.flagId
+        );
+
+    if (!flagBox) {
+
+        return;
+
+    }
+
+    const flag =
+        typeof evaluateLabValue === "function"
+            ? evaluateLabValue(
+                input.dataset.test,
+                input.value
+            )
+            : "";
+
+    if (flag === "high") {
+
+        flagBox.textContent =
+            "↑ ከፍተኛ (High)";
+
+        flagBox.style.color =
+            "#c0392b";
+
+    } else if (flag === "low") {
+
+        flagBox.textContent =
+            "↓ ዝቅተኛ (Low)";
+
+        flagBox.style.color =
+            "#1f6fb2";
+
+    } else {
+
+        flagBox.textContent =
+            "";
+
+    }
 
 }
 
@@ -771,20 +923,44 @@ function handleSubmitLabResult(orderId) {
 
     let hasAnyValue = false;
 
+    let emptyCount = 0;
+
     inputs.forEach(
         function (input) {
 
-            const value =
+            let value =
                 input.value.trim();
-
-            results[input.dataset.test] =
-                value;
 
             if (value) {
 
                 hasAnyValue = true;
 
+                const flag =
+                    typeof evaluateLabValue === "function"
+                        ? evaluateLabValue(
+                            input.dataset.test,
+                            value
+                        )
+                        : "";
+
+                if (flag === "high") {
+
+                    value += " ↑ High";
+
+                } else if (flag === "low") {
+
+                    value += " ↓ Low";
+
+                }
+
+            } else {
+
+                emptyCount++;
+
             }
+
+            results[input.dataset.test] =
+                value;
 
         }
     );
@@ -799,11 +975,23 @@ function handleSubmitLabResult(orderId) {
 
     }
 
+    if (
+        emptyCount > 0 &&
+        !confirm(
+            "ውጤት ያልገባላቸው " +
+            emptyCount +
+            " ምርመራዎች አሉ። ከተላከ በኋላ መቀየር አይቻልም። ቢሆንም ይላክ?"
+        )
+    ) {
+
+        return;
+
+    }
+
     completeLabOrder(
         orderId,
         results
     );
-
 
     displayLaboratory();
 
