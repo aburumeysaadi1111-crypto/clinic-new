@@ -621,7 +621,182 @@ function displayRadiology() {
 
 
 /* ==========================================
+   📋 የሪፖርት ናሙናዎች (Templates)
+   ------------------------------------------
+   structure → ባዶ ቦታዎች (___) ያሉት መዋቅር፤ ሬዲዮሎጂስቱ ይሞላል
+   normal    → የተለመደ 'መደበኛ' ጽሑፍ፤ ከመላክ በፊት ማንበብና ማስተካከል ያስፈልጋል
+========================================== */
+
+function getRadiologyTemplate(examName) {
+
+    const name =
+        String(examName || "").toLowerCase();
+
+    const isUltrasound =
+        name.indexOf("አልትራ") !== -1 ||
+        name.indexOf("ultra") !== -1 ||
+        /\bus\b/.test(name);
+
+    if (/\bct\b/.test(name)) {
+
+        return {
+
+            structure:
+                "Region / Technique: ___\nFindings: ___\nImpression: ___",
+
+            normal: ""
+
+        };
+
+    }
+
+    if (
+        name.indexOf("chest") !== -1 ||
+        name.indexOf("ደረት") !== -1
+    ) {
+
+        return {
+
+            structure:
+                "Technique: ___\nFindings:\n- Lungs: ___\n- Heart / Mediastinum: ___\n- Pleura / Diaphragm: ___\n- Bones / Soft tissue: ___",
+
+            normal:
+                "Technique: PA view.\nLungs are clear. No consolidation, effusion or pneumothorax.\nHeart size and mediastinum are normal.\nCostophrenic angles are sharp.\nBony thorax is unremarkable."
+
+        };
+
+    }
+
+    if (
+        name.indexOf("ኩላሊት") !== -1 ||
+        name.indexOf("kidney") !== -1 ||
+        name.indexOf("renal") !== -1
+    ) {
+
+        return {
+
+            structure:
+                "Right kidney: ___\nLeft kidney: ___\nStone / Hydronephrosis / Mass: ___\nUrinary bladder: ___",
+
+            normal:
+                isUltrasound
+                    ? "Both kidneys are normal in size, shape and echotexture.\nCorticomedullary differentiation is preserved.\nNo stone, hydronephrosis or mass.\nUrinary bladder is unremarkable."
+                    : ""
+
+        };
+
+    }
+
+    if (
+        name.indexOf("እርግዝና") !== -1 ||
+        name.indexOf("obstetric") !== -1 ||
+        name.indexOf("pregnan") !== -1
+    ) {
+
+        return {
+
+            structure:
+                "Number of fetuses: ___\nPresentation: ___\nFetal heart activity: ___\nGestational age (biometry): ___\nEstimated fetal weight: ___\nAmniotic fluid: ___\nPlacenta: ___\nEDD: ___",
+
+            normal: ""
+
+        };
+
+    }
+
+    if (
+        name.indexOf("ሆድ") !== -1 ||
+        name.indexOf("abdom") !== -1
+    ) {
+
+        return {
+
+            structure:
+                isUltrasound
+                    ? "Liver: ___\nGallbladder / CBD: ___\nPancreas: ___\nSpleen: ___\nKidneys: ___\nFree fluid: ___\nOthers: ___"
+                    : "Findings: ___",
+
+            normal:
+                isUltrasound
+                    ? "Liver is normal in size and echotexture, no focal lesion.\nGallbladder is normal, no stones. CBD is not dilated.\nPancreas and spleen are normal.\nBoth kidneys are normal.\nNo free fluid in the abdomen."
+                    : ""
+
+        };
+
+    }
+
+    if (name.indexOf("ecg") !== -1) {
+
+        return {
+
+            structure:
+                "Rate: ___ bpm\nRhythm: ___\nAxis: ___\nP wave / PR interval: ___\nQRS: ___\nST-T changes: ___\nInterpretation: ___",
+
+            normal: ""
+
+        };
+
+    }
+
+    return {
+
+        structure:
+            "Findings: ___",
+
+        normal: ""
+
+    };
+
+}
+
+
+function fillRadiologyTemplate(index, kind) {
+
+    const box =
+        document.getElementById(
+            "radiologyReport-" + index
+        );
+
+    if (!box) {
+
+        return;
+
+    }
+
+    const template =
+        getRadiologyTemplate(
+            box.dataset.exam
+        );
+
+    const text =
+        template[kind];
+
+    if (!text) {
+
+        return;
+
+    }
+
+    if (
+        box.value.trim() &&
+        !confirm(
+            "በሳጥኑ ውስጥ ያለው ጽሑፍ ይተካል። ይቀጥል?"
+        )
+    ) {
+
+        return;
+
+    }
+
+    box.value =
+        text;
+
+}
+
+
+/* ==========================================
    📝 ENTER RADIOLOGY RESULT
+   (እያንዳንዱ የታዘዘ ምርመራ በራሱ ሳጥን)
 ========================================== */
 
 function enterRadiologyResult(
@@ -657,6 +832,58 @@ function enterRadiologyResult(
             ? getPatientById(order.patientId)
             : null;
 
+    const examsHtml =
+        order.exams.map(
+            function (exam, index) {
+
+                const template =
+                    getRadiologyTemplate(exam);
+
+                return `
+
+                    <div style="border:1px solid #d9e2ec; border-radius:8px; padding:10px; margin-bottom:10px; background:#f8fafc;">
+
+                        <strong>🩻 ${escapeRadiologyText(exam)}</strong>
+
+                        <div style="display:flex; gap:6px; flex-wrap:wrap; margin:8px 0;">
+
+                            <button
+                                type="button"
+                                onclick="fillRadiologyTemplate(${index}, 'structure')"
+                                style="padding:8px 12px;"
+                            >
+                                📋 መዋቅር ሙላ
+                            </button>
+
+                            ${
+                                template.normal
+                                ? `<button
+                                        type="button"
+                                        onclick="fillRadiologyTemplate(${index}, 'normal')"
+                                        style="padding:8px 12px;"
+                                    >
+                                        ✅ መደበኛ ጽሑፍ ሙላ
+                                    </button>`
+                                : ""
+                            }
+
+                        </div>
+
+                        <textarea
+                            id="radiologyReport-${index}"
+                            class="radiology-report-input"
+                            data-exam="${escapeRadiologyText(exam)}"
+                            style="width:100%; min-height:150px; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px;"
+                            placeholder="ግኝቱን እዚህ ይጻፉ..."
+                        ></textarea>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
     container.innerHTML = `
 
         <button onclick="displayRadiology()">
@@ -676,19 +903,28 @@ function enterRadiologyResult(
                     ? escapeRadiologyText(patient.firstName) + " " + escapeRadiologyText(patient.fatherName)
                     : escapeRadiologyText(order.patientId)
             }
-            <br>
-            <strong>የታዘዙ ምርመራዎች:</strong>
-            ${escapeRadiologyText(order.exams.join(", "))}
+            ${
+                order.note
+                ? `<br><strong>Clinical Data:</strong> ${escapeRadiologyText(order.note)}`
+                : ""
+            }
         </p>
 
+        <p style="font-size:13px; color:#52606d;">
+            ማስታወሻ፦ ናሙና ጽሑፎቹ ለማገዝ ብቻ ናቸው። ሬዲዮሎጂስቱ አንብቦ ማስተካከል አለበት።
+            '___' ያላቸው ባዶ ቦታዎች መሞላት አለባቸው።
+        </p>
+
+        ${examsHtml}
+
         <label>
-            🩻 RADIOLOGIST'S REPORT
+            📌 IMPRESSION / ማጠቃለያ (አማራጭ)
         </label>
 
         <textarea
-            id="radiologyReportInput"
-            style="width:100%; min-height:220px; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px;"
-            placeholder="ግኝቶችን እዚህ ይጻፉ..."
+            id="radiologyImpressionInput"
+            style="width:100%; min-height:80px; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px;"
+            placeholder="ማጠቃለያ..."
         ></textarea>
 
         <button
@@ -705,15 +941,65 @@ function enterRadiologyResult(
 
 function handleSubmitRadiologyResult(orderId) {
 
-    const textarea =
-        document.getElementById(
-            "radiologyReportInput"
+    const boxes =
+        document.querySelectorAll(
+            ".radiology-report-input"
         );
 
-    const report =
-        textarea ? textarea.value.trim() : "";
+    const results = {};
 
-    if (!report) {
+    let hasAny = false;
+
+    let emptyCount = 0;
+
+    let unfilledCount = 0;
+
+    boxes.forEach(
+        function (box) {
+
+            const value =
+                box.value.trim();
+
+            if (!value) {
+
+                emptyCount++;
+
+                return;
+
+            }
+
+            hasAny = true;
+
+            if (value.indexOf("___") !== -1) {
+
+                unfilledCount++;
+
+            }
+
+            results[box.dataset.exam] =
+                value;
+
+        }
+    );
+
+    const impressionBox =
+        document.getElementById(
+            "radiologyImpressionInput"
+        );
+
+    if (
+        impressionBox &&
+        impressionBox.value.trim()
+    ) {
+
+        results["Impression"] =
+            impressionBox.value.trim();
+
+        hasAny = true;
+
+    }
+
+    if (!hasAny) {
 
         alert(
             "እባክዎ ግኝቱን/ሪፖርቱን ይጻፉ።"
@@ -723,14 +1009,33 @@ function handleSubmitRadiologyResult(orderId) {
 
     }
 
+    if (
+        emptyCount > 0 &&
+        !confirm(
+            "ሪፖርት ያልተጻፈላቸው " +
+            emptyCount +
+            " ምርመራዎች አሉ። ከተላከ በኋላ መቀየር አይቻልም። ቢሆንም ይላክ?"
+        )
+    ) {
+
+        return;
+
+    }
+
+    if (
+        unfilledCount > 0 &&
+        !confirm(
+            "'___' ያልተሞሉ ባዶ ቦታዎች ያሉት ሪፖርት አለ። ቢሆንም ይላክ?"
+        )
+    ) {
+
+        return;
+
+    }
+
     completeRadiologyOrder(
         orderId,
-        {
-
-            "ሪፖርት":
-                report
-
-        }
+        results
     );
 
     displayRadiology();

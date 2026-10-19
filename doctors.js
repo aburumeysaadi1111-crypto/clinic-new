@@ -1803,123 +1803,202 @@ function renderLabRadiologyOrderForm(
 }
 
 
-function handleAddCustomRadiologyExamInline(
-    doctorId,
-    patientId
-) {
+function handleAddCustomRadiologyExamInline() {
+
+    const input =
+        document.getElementById(
+            "customRadiologyNameInput"
+        );
+
+    const container =
+        document.getElementById(
+            "customRadiologyContainer"
+        );
+
+    if (!input || !container) {
+
+        return;
+
+    }
 
     const name =
-        prompt(
-            "የአዲሱን የራጅ/ኤክስሬይ ምርመራ ስም ያስገቡ:"
-        );
+        input.value.trim();
 
-    if (!name || !name.trim()) {
-
-        return;
-
-    }
-
-    const added =
-        typeof addCustomRadiologyExam === "function"
-            ? addCustomRadiologyExam(name)
-            : null;
-
-    if (!added) {
+    if (!name) {
 
         alert(
-            "ይህ ምርመራ ቀድሞ አለ ወይም ስም አልገባም።"
+            "የምርመራ ስም ያስገቡ።"
         );
 
         return;
 
     }
 
-    alert(
-        "✅ ተጨምሯል።"
-    );
+    const exists =
+        Array.from(
+            document.querySelectorAll(
+                ".radiology-exam-checkbox"
+            )
+        ).some(
+            function (box) {
 
-    /* ==========================================
-       ገጹን ዳግም ይክፈት (የገባውን ማስታወሻ ላያጣ ጥንቃቄ)
-    ========================================== */
+                return (
+                    box.value.toLowerCase() ===
+                    name.toLowerCase()
+                );
 
-    const noteBox =
-        document.getElementById(
-            "dxNoteInput"
+            }
         );
 
-    const savedNote =
-        noteBox ? noteBox.value : "";
+    if (exists) {
 
-    renderLabRadiologyOrderForm(doctorId, patientId);
-
-    const restoredNoteBox =
-        document.getElementById(
-            "dxNoteInput"
+        alert(
+            "ይህ ምርመራ ቀድሞ በዝርዝሩ ውስጥ አለ፤ ምልክት ያድርጉበት።"
         );
 
-    if (restoredNoteBox) {
-
-        restoredNoteBox.value =
-            savedNote;
+        return;
 
     }
+
+    /* ለዚህ ትዕዛዝ ብቻ ይያያዛል (ምልክት ተደርጎበት ይታያል) */
+    const label =
+        document.createElement("label");
+
+    label.style.cssText =
+        "display:flex; align-items:center; gap:8px; font-weight:normal; background:#fff8e1; border:1px solid #f0c36d; border-radius:6px; padding:6px 10px;";
+
+    const box =
+        document.createElement("input");
+
+    box.type =
+        "checkbox";
+
+    box.className =
+        "radiology-exam-checkbox";
+
+    box.value =
+        name;
+
+    box.checked =
+        true;
+
+    const text =
+        document.createElement("span");
+
+    text.style.flex =
+        "1";
+
+    text.textContent =
+        name + " (ተጨማሪ)";
+
+    label.appendChild(box);
+
+    label.appendChild(text);
+
+    container.appendChild(label);
+
+    input.value =
+        "";
 
 }
 
 
-function handleAddCustomLabTestInline(
-    doctorId,
-    patientId
-) {
+function handleAddCustomLabTestInline() {
 
-    const name =
-        prompt(
-            "የአዲሱን የላብ ምርመራ ስም ያስገቡ:"
+    const input =
+        document.getElementById(
+            "customLabTestNameInput"
         );
 
-    if (!name || !name.trim()) {
+    const container =
+        document.getElementById(
+            "customLabTestsContainer"
+        );
+
+    if (!input || !container) {
 
         return;
 
     }
 
-    const custom =
-        typeof getCustomLabTests2 === "function"
-            ? getCustomLabTests2()
-            : [];
+    const name =
+        input.value.trim();
 
-    custom.push(name.trim());
+    if (!name) {
 
-    localStorage.setItem(
-        "clinicCustomLabTests",
-        JSON.stringify(custom)
-    );
-
-    alert(
-        "✅ ተጨምሯል። ዝርዝሩ ውስጥ 'ተጨማሪ (Custom)' ምድብ ስር ያገኙታል።"
-    );
-
-    const noteBox =
-        document.getElementById(
-            "dxNoteInput"
+        alert(
+            "የምርመራ ስም ያስገቡ።"
         );
 
-    const savedNote =
-        noteBox ? noteBox.value : "";
-
-    renderLabRadiologyOrderForm(doctorId, patientId);
-
-    const restoredNoteBox =
-        document.getElementById(
-            "dxNoteInput"
-        );
-
-    if (restoredNoteBox) {
-
-        restoredNoteBox.value =
-            savedNote;
+        return;
 
     }
+
+    const exists =
+        Array.from(
+            document.querySelectorAll(
+                ".lab-test-checkbox"
+            )
+        ).some(
+            function (box) {
+
+                return (
+                    box.value.toLowerCase() ===
+                    name.toLowerCase()
+                );
+
+            }
+        );
+
+    if (exists) {
+
+        alert(
+            "ይህ ምርመራ ቀድሞ በዝርዝሩ ውስጥ አለ፤ ምልክት ያድርጉበት።"
+        );
+
+        return;
+
+    }
+
+    /* ለዚህ ትዕዛዝ ብቻ ይያያዛል (ምልክት ተደርጎበት ይታያል) */
+    const label =
+        document.createElement("label");
+
+    label.style.cssText =
+        "display:flex; align-items:center; gap:8px; font-weight:normal; background:#fff8e1; border:1px solid #f0c36d; border-radius:6px; padding:6px 10px;";
+
+    const box =
+        document.createElement("input");
+
+    box.type =
+        "checkbox";
+
+    box.className =
+        "lab-test-checkbox";
+
+    box.value =
+        name;
+
+    box.checked =
+        true;
+
+    const text =
+        document.createElement("span");
+
+    text.style.flex =
+        "1";
+
+    text.textContent =
+        name + " (ተጨማሪ)";
+
+    label.appendChild(box);
+
+    label.appendChild(text);
+
+    container.appendChild(label);
+
+    input.value =
+        "";
 
 }
 
@@ -2598,9 +2677,10 @@ function renderDoctorReceivedResultsInline(doctorId) {
 
                                 return (
                                     "🧪 " +
-                                    test +
+                                    escapeDoctorText(test) +
                                     ": " +
-                                    labOrder.results[test]
+                                    escapeDoctorText(labOrder.results[test])
+                                        .replace(/\n/g, "<br>")
                                 );
 
                             }
@@ -2614,9 +2694,10 @@ function renderDoctorReceivedResultsInline(doctorId) {
 
                                 return (
                                     "🩻 " +
-                                    exam +
+                                    escapeDoctorText(exam) +
                                     ": " +
-                                    radOrder.results[exam]
+                                    escapeDoctorText(radOrder.results[exam])
+                                        .replace(/\n/g, "<br>")
                                 );
 
                             }
