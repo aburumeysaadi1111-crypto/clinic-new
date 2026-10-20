@@ -488,6 +488,45 @@ function getOrCreatePhemReport(weekStart) {
    🔄 AUTO-FILL (ካሉት የክሊኒክ ውሂብ በራስ-ሰር ይሞላል)
 ========================================== */
 
+function phemLocalDateKey(value) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+    if (
+        typeof value === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ) {
+
+        return value;
+
+    }
+
+    const date =
+        value instanceof Date
+            ? value
+            : new Date(value);
+
+    if (isNaN(date.getTime())) {
+
+        return "";
+
+    }
+
+    return (
+        date.getFullYear() +
+        "-" +
+        String(date.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(date.getDate()).padStart(2, "0")
+    );
+
+}
+
+
 function autoFillPhemReport(weekStart, weekEnd) {
 
     const patients =
@@ -495,20 +534,55 @@ function autoFillPhemReport(weekStart, weekEnd) {
             ? getAllPatients()
             : [];
 
-    const totalSeen =
+    function inWeek(value) {
+
+        const key =
+            phemLocalDateKey(value);
+
+        return !!(
+            key &&
+            key >= weekStart &&
+            key <= weekEnd
+        );
+
+    }
+
+    /* የታዩ ታካሚዎች = በሳምንቱ ውስጥ ህክምና የተጠናቀቀላቸው (ልዩ ታካሚዎች)።
+       የህክምና ምዝገባ ከሌለ (የድሮ ዳታ) እንደ ድሮው አዲስ የተመዘገቡትን ይቆጥራል። */
+    const visited =
         patients.filter(
             function (patient) {
 
-                const created =
-                    (patient.createdAt || "").split("T")[0];
-
                 return (
-                    created >= weekStart &&
-                    created <= weekEnd
+                    Array.isArray(patient.history) &&
+                    patient.history.some(
+                        function (entry) {
+
+                            return (
+                                entry.at &&
+                                inWeek(entry.at)
+                            );
+
+                        }
+                    )
                 );
 
             }
         ).length;
+
+    const registered =
+        patients.filter(
+            function (patient) {
+
+                return inWeek(patient.createdAt);
+
+            }
+        ).length;
+
+    const totalSeen =
+        visited > 0
+            ? visited
+            : registered;
 
     const diagnosticRequests =
         typeof getDiagnosticRequests === "function"
@@ -519,12 +593,9 @@ function autoFillPhemReport(weekStart, weekEnd) {
         diagnosticRequests.filter(
             function (request) {
 
-                const created =
-                    (request.createdAt || "").split("T")[0];
-
                 return (
-                    created >= weekStart &&
-                    created <= weekEnd &&
+                    inWeek(request.createdAt) &&
+                    Array.isArray(request.labTests) &&
                     request.labTests.some(
                         function (test) {
 

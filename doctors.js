@@ -2468,15 +2468,341 @@ function handleCompleteVisit(
     patientId
 ) {
 
-    const noteInput =
-        prompt(
-            "📝 ማጠቃለያ ማስታወሻ (Diagnosis/Treatment) ካለ ያስገቡ (ባዶ ለመተው OK ወይም Cancel ይጫኑ):"
+    const old =
+        document.getElementById(
+            "completeVisitOverlay"
         );
 
-    const note =
-        noteInput === null
-            ? ""
-            : noteInput;
+    if (old) {
+
+        old.remove();
+
+    }
+
+    const overlay =
+        document.createElement("div");
+
+    overlay.id =
+        "completeVisitOverlay";
+
+    overlay.style.cssText =
+        "position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:10000; display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:14px;";
+
+    const panel =
+        document.createElement("div");
+
+    panel.style.cssText =
+        "background:#fff; border-radius:12px; padding:16px; width:100%; max-width:560px; box-sizing:border-box;";
+
+    panel.innerHTML = `
+
+        <h3 style="margin-top:0;">
+            🦠 ህክምና ጨርስ — በሽታ (Diagnosis) ይምረጡ
+        </h3>
+
+        <input
+            type="text"
+            id="cvSearchInput"
+            placeholder="🔎 በሽታ ፈልግ..."
+            style="width:100%; box-sizing:border-box; margin-bottom:8px;"
+        >
+
+        <div
+            id="cvDiseaseList"
+            style="max-height:38vh; overflow:auto; border:1px solid #d9e2ec; border-radius:8px; padding:6px; display:flex; flex-direction:column; gap:4px;"
+        ></div>
+
+        <div style="display:flex; gap:6px; margin-top:8px;">
+
+            <input
+                type="text"
+                id="cvCustomInput"
+                placeholder="ሌላ በሽታ ስም..."
+                style="flex:1;"
+            >
+
+            <button type="button" id="cvCustomAdd">
+                + ሌላ በሽታ ጨምር
+            </button>
+
+        </div>
+
+        <div
+            id="cvCustomList"
+            style="display:flex; flex-direction:column; gap:4px; margin-top:6px;"
+        ></div>
+
+        <label style="display:block; margin-top:10px;">
+            📝 የህክምና / ማጠቃለያ ማስታወሻ (አማራጭ)
+        </label>
+
+        <textarea
+            id="cvNoteInput"
+            style="width:100%; box-sizing:border-box; min-height:70px;"
+        ></textarea>
+
+        <div style="display:flex; gap:8px; margin-top:12px;">
+
+            <button
+                type="button"
+                id="cvSubmit"
+                style="flex:1; background:#0b5d45; color:#fff; border:none; border-radius:8px; padding:12px;"
+            >
+                ✅ አጠናቅ
+            </button>
+
+            <button
+                type="button"
+                id="cvCancel"
+                style="padding:12px;"
+            >
+                ሰርዝ
+            </button>
+
+        </div>
+
+    `;
+
+    overlay.appendChild(panel);
+
+    document.body.appendChild(overlay);
+
+    const listBox =
+        panel.querySelector("#cvDiseaseList");
+
+    const diseases =
+        typeof COMMON_DISEASES !== "undefined"
+            ? COMMON_DISEASES
+            : [];
+
+    diseases.forEach(
+        function (name) {
+
+            const label =
+                document.createElement("label");
+
+            label.style.cssText =
+                "display:flex; align-items:center; gap:8px; font-weight:normal;";
+
+            label.dataset.name =
+                name.toLowerCase();
+
+            const box =
+                document.createElement("input");
+
+            box.type =
+                "checkbox";
+
+            box.className =
+                "cv-disease";
+
+            box.value =
+                name;
+
+            const text =
+                document.createElement("span");
+
+            text.textContent =
+                name;
+
+            label.appendChild(box);
+
+            label.appendChild(text);
+
+            listBox.appendChild(label);
+
+        }
+    );
+
+    panel
+        .querySelector("#cvSearchInput")
+        .addEventListener(
+            "input",
+            function (event) {
+
+                const term =
+                    event.target.value
+                        .trim()
+                        .toLowerCase();
+
+                listBox
+                    .querySelectorAll("label")
+                    .forEach(
+                        function (label) {
+
+                            label.style.display =
+                                !term ||
+                                label.dataset.name.indexOf(term) !== -1
+                                    ? "flex"
+                                    : "none";
+
+                        }
+                    );
+
+            }
+        );
+
+    panel
+        .querySelector("#cvCustomAdd")
+        .addEventListener(
+            "click",
+            function () {
+
+                const input =
+                    panel.querySelector("#cvCustomInput");
+
+                const name =
+                    input.value.trim();
+
+                if (!name) {
+
+                    alert(
+                        "የበሽታውን ስም ያስገቡ።"
+                    );
+
+                    return;
+
+                }
+
+                const exists =
+                    Array.from(
+                        panel.querySelectorAll(".cv-disease")
+                    ).some(
+                        function (box) {
+
+                            return (
+                                box.value.toLowerCase() ===
+                                name.toLowerCase()
+                            );
+
+                        }
+                    );
+
+                if (exists) {
+
+                    alert(
+                        "ይህ በሽታ ቀድሞ በዝርዝሩ ውስጥ አለ፤ ምልክት ያድርጉበት።"
+                    );
+
+                    return;
+
+                }
+
+                const label =
+                    document.createElement("label");
+
+                label.style.cssText =
+                    "display:flex; align-items:center; gap:8px; font-weight:normal; background:#fff8e1; border:1px solid #f0c36d; border-radius:6px; padding:6px 10px;";
+
+                const box =
+                    document.createElement("input");
+
+                box.type =
+                    "checkbox";
+
+                box.className =
+                    "cv-disease";
+
+                box.value =
+                    name;
+
+                box.checked =
+                    true;
+
+                const text =
+                    document.createElement("span");
+
+                text.textContent =
+                    name + " (ተጨማሪ)";
+
+                label.appendChild(box);
+
+                label.appendChild(text);
+
+                panel
+                    .querySelector("#cvCustomList")
+                    .appendChild(label);
+
+                input.value =
+                    "";
+
+            }
+        );
+
+    panel
+        .querySelector("#cvCancel")
+        .addEventListener(
+            "click",
+            function () {
+
+                overlay.remove();
+
+            }
+        );
+
+    panel
+        .querySelector("#cvSubmit")
+        .addEventListener(
+            "click",
+            function () {
+
+                const diagnoses =
+                    Array.from(
+                        panel.querySelectorAll(".cv-disease")
+                    )
+                    .filter(
+                        function (box) {
+
+                            return box.checked;
+
+                        }
+                    )
+                    .map(
+                        function (box) {
+
+                            return box.value;
+
+                        }
+                    );
+
+                if (
+                    diagnoses.length === 0 &&
+                    !confirm(
+                        "ምንም በሽታ አልተመረጠም። ያለ በሽታ ምዝገባ ይጠናቀቅ? (በዕለታዊ የበሽታ ሪፖርት አይቆጠርም)"
+                    )
+                ) {
+
+                    return;
+
+                }
+
+                const note =
+                    panel
+                        .querySelector("#cvNoteInput")
+                        .value
+                        .trim();
+
+                overlay.remove();
+
+                finishDoctorVisit(
+                    doctorId,
+                    patientId,
+                    diagnoses,
+                    note
+                );
+
+            }
+        );
+
+}
+
+
+function finishDoctorVisit(
+    doctorId,
+    patientId,
+    diagnoses,
+    note
+) {
 
     const doctor =
         getDoctorById(doctorId);
@@ -2486,35 +2812,28 @@ function handleCompleteVisit(
             ? getTodaysDiagnosticSummaryText(patientId, doctorId)
             : "";
 
-    if (
-        (
-            note.trim() ||
-            diagnosticSummary
-        ) &&
-        typeof addPatientHistory ===
-        "function"
-    ) {
+    /* ሁልጊዜ ይመዘገባል (ጉብኝቱ በዕለታዊ ሪፖርት እንዲቆጠር) */
+    if (typeof addPatientHistory === "function") {
 
         addPatientHistory(
             patientId,
             {
-
                 doctorId:
                     doctorId,
-
                 doctorName:
                     doctor
                         ? doctor.firstName +
                           " " +
                           doctor.fatherName
                         : "",
-
                 note:
-                    note.trim(),
-
+                    note,
+                diagnoses:
+                    diagnoses,
+                diagnosis:
+                    diagnoses.join(", "),
                 diagnosticResults:
                     diagnosticSummary
-
             }
         );
 

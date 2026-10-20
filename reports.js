@@ -705,6 +705,48 @@ function isoDatePart(value) {
 }
 
 
+/* የአካባቢ (local) ቀን ቁልፍ "YYYY-MM-DD"።
+   ከዚህ በፊት የ UTC ቀን ይጠቀም ነበር፤ በኢትዮጵያ (UTC+3) ከእኩለ ሌሊት እስከ 3 ሰዓት
+   የተመዘገበ ነገር ለቀድሞው ቀን ይቆጠር ነበር። */
+function reportLocalDateKey(value) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+    if (
+        typeof value === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ) {
+
+        return value;
+
+    }
+
+    const date =
+        value instanceof Date
+            ? value
+            : new Date(value);
+
+    if (isNaN(date.getTime())) {
+
+        return "";
+
+    }
+
+    return (
+        date.getFullYear() +
+        "-" +
+        String(date.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(date.getDate()).padStart(2, "0")
+    );
+
+}
+
+
 function getDailyReport(dateObj) {
 
     const targetDate =
@@ -713,7 +755,7 @@ function getDailyReport(dateObj) {
             : new Date();
 
     const targetIsoDate =
-        targetDate.toISOString().split("T")[0];
+        reportLocalDateKey(targetDate);
 
     const patients =
         typeof getAllPatients === "function"
@@ -750,7 +792,7 @@ function getDailyReport(dateObj) {
             function (patient) {
 
                 return (
-                    isoDatePart(patient.createdAt) ===
+                    reportLocalDateKey(patient.createdAt) ===
                     targetIsoDate
                 );
 
@@ -762,7 +804,7 @@ function getDailyReport(dateObj) {
             function (payment) {
 
                 return (
-                    isoDatePart(payment.date) ===
+                    reportLocalDateKey(payment.date) ===
                     targetIsoDate
                 );
 
@@ -774,7 +816,7 @@ function getDailyReport(dateObj) {
             function (expense) {
 
                 return (
-                    isoDatePart(expense.date) ===
+                    reportLocalDateKey(expense.date) ===
                     targetIsoDate
                 );
 
@@ -787,7 +829,7 @@ function getDailyReport(dateObj) {
 
                 return (
                     order.completedAt &&
-                    isoDatePart(order.completedAt) ===
+                    reportLocalDateKey(order.completedAt) ===
                         targetIsoDate
                 );
 
@@ -800,7 +842,7 @@ function getDailyReport(dateObj) {
 
                 return (
                     order.completedAt &&
-                    isoDatePart(order.completedAt) ===
+                    reportLocalDateKey(order.completedAt) ===
                         targetIsoDate
                 );
 
@@ -813,7 +855,7 @@ function getDailyReport(dateObj) {
 
                 return (
                     rx.dispensedDate &&
-                    isoDatePart(rx.dispensedDate) ===
+                    reportLocalDateKey(rx.dispensedDate) ===
                         targetIsoDate
                 );
 
@@ -916,6 +958,171 @@ function getDailyReport(dateObj) {
 }
 
 
+
+/* ==========================================
+   🦠 ዕለታዊ የበሽታ ሪፖርት (በዚያ ቀን የተገኙ በሽታዎች)
+========================================== */
+
+function getDailyDiseaseReport(dateObj) {
+
+    const key =
+        reportLocalDateKey(
+            dateObj instanceof Date
+                ? dateObj
+                : new Date()
+        );
+
+    const patients =
+        typeof getAllPatients === "function"
+            ? getAllPatients()
+            : [];
+
+    const rows = {};
+
+    let visits = 0;
+
+    const seenPatients = {};
+
+    patients.forEach(
+        function (patient) {
+
+            const history =
+                Array.isArray(patient.history)
+                    ? patient.history
+                    : [];
+
+            history.forEach(
+                function (entry) {
+
+                    if (
+                        !entry.at ||
+                        reportLocalDateKey(entry.at) !== key
+                    ) {
+
+                        return;
+
+                    }
+
+                    visits++;
+
+                    seenPatients[patient.id] = true;
+
+                    const diagnoses =
+                        Array.isArray(entry.diagnoses)
+                            ? entry.diagnoses
+                            : [];
+
+                    const gender =
+                        String(patient.gender || "");
+
+                    const isMale =
+                        gender.indexOf("ወንድ") !== -1 ||
+                        gender.toLowerCase().indexOf("male") === 0;
+
+                    const isFemale =
+                        gender.indexOf("ሴት") !== -1 ||
+                        gender.toLowerCase().indexOf("female") === 0;
+
+                    const age =
+                        parseFloat(patient.age);
+
+                    diagnoses.forEach(
+                        function (name) {
+
+                            const clean =
+                                String(name || "").trim();
+
+                            const rowKey =
+                                clean.toLowerCase();
+
+                            if (!rowKey) {
+
+                                return;
+
+                            }
+
+                            if (!rows[rowKey]) {
+
+                                rows[rowKey] = {
+                                    name: clean,
+                                    total: 0,
+                                    male: 0,
+                                    female: 0,
+                                    under5: 0,
+                                    over5: 0
+                                };
+
+                            }
+
+                            const row =
+                                rows[rowKey];
+
+                            row.total++;
+
+                            if (isMale) {
+
+                                row.male++;
+
+                            } else if (isFemale) {
+
+                                row.female++;
+
+                            }
+
+                            if (!isNaN(age)) {
+
+                                if (age < 5) {
+
+                                    row.under5++;
+
+                                } else {
+
+                                    row.over5++;
+
+                                }
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
+
+    const list =
+        Object.keys(rows)
+            .map(
+                function (rowKey) {
+
+                    return rows[rowKey];
+
+                }
+            )
+            .sort(
+                function (a, b) {
+
+                    return b.total - a.total;
+
+                }
+            );
+
+    return {
+
+        visits: visits,
+
+        uniquePatients:
+            Object.keys(seenPatients).length,
+
+        diseases: list
+
+    };
+
+}
+
+
 let selectedReportDate =
     new Date();
 
@@ -959,6 +1166,28 @@ function renderDailyReportSection() {
     const daily =
         getDailyReport(selectedReportDate);
 
+    const diseaseReport =
+        getDailyDiseaseReport(selectedReportDate);
+
+    const diseaseRows =
+        diseaseReport.diseases.map(
+            function (row) {
+
+                return `
+                    <tr>
+                        <td style="padding:5px;">${escapeReportText(row.name)}</td>
+                        <td style="text-align:center;"><strong>${row.total}</strong></td>
+                        <td style="text-align:center;">${row.male}</td>
+                        <td style="text-align:center;">${row.female}</td>
+                        <td style="text-align:center;">${row.under5}</td>
+                        <td style="text-align:center;">${row.over5}</td>
+                    </tr>
+                `;
+
+            }
+        ).join("");
+
+
     const serviceRows =
         Object.keys(daily.incomeByService)
             .map(
@@ -991,6 +1220,8 @@ function renderDailyReportSection() {
     box.innerHTML = `
 
         <div class="report-print-header">
+
+            ${typeof getClinicPrintHeaderHtml === "function" ? getClinicPrintHeaderHtml() : ""}
 
             <h2>
                 የክሊኒክ ዕለታዊ ሪፖርት
@@ -1034,6 +1265,40 @@ function renderDailyReportSection() {
             </div>
 
         </div>
+
+        <h3>
+            🦠 የተገኙ በሽታዎች
+        </h3>
+
+        <p>
+            የታዩ ጉብኝቶች: <strong>${diseaseReport.visits}</strong>
+            &nbsp;|&nbsp;
+            የታዩ ታካሚዎች: <strong>${diseaseReport.uniquePatients}</strong>
+        </p>
+
+        ${
+            diseaseRows
+            ? `
+                <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                    <thead>
+                        <tr style="border-bottom:2px solid #0b5d45;">
+                            <th style="text-align:right; padding:6px;">በሽታ</th>
+                            <th>ጠቅላላ</th>
+                            <th>ወንድ</th>
+                            <th>ሴት</th>
+                            <th>&lt;5 ዓመት</th>
+                            <th>≥5 ዓመት</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${diseaseRows}
+                    </tbody>
+                </table>
+            `
+            : "<p>በዚህ ቀን የተመዘገበ በሽታ የለም።</p>"
+        }
+
+        <hr>
 
         <h3>
             💰 ገቢ በአገልግሎት ዓይነት
@@ -1090,6 +1355,13 @@ function renderDailyReportSection() {
         <h2>
             📈 ተጣራ ገቢ (ገቢ - ወጪ): ${daily.netIncome} ${escapeReportText(daily.currency)}
         </h2>
+
+        <p style="font-size:12px; color:#52606d;">
+            የታተመበት ጊዜ: ${escapeReportText(typeof formatEthiopianDateTime === "function" ? formatEthiopianDateTime(new Date()) : "")}
+        </p>
+
+        ${typeof getClinicPrintFooterHtml === "function" ? getClinicPrintFooterHtml() : ""}
+
 
     `;
 

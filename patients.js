@@ -709,6 +709,15 @@ function addPatientHistory(
         date:
             formatEthiopianDateTime(new Date()),
 
+        at:
+            new Date().toISOString(),
+
+        diagnoses:
+            historyData &&
+            Array.isArray(historyData.diagnoses)
+                ? historyData.diagnoses
+                : [],
+
         doctorId:
             historyData &&
             historyData.doctorId

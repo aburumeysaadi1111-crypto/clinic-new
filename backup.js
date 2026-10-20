@@ -69,7 +69,9 @@ const CLINIC_BACKUP_KEYS = [
 
     "clinic_activity",
 
-    "clinic_reports"
+    "clinic_reports",
+
+    "clinic_settings"
 
 ];
 
