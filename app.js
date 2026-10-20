@@ -326,6 +326,26 @@ function showApp() {
 
 
     if (
+        typeof applyClinicBranding ===
+        "function"
+    ) {
+
+        applyClinicBranding();
+
+    }
+
+
+    if (
+        typeof promptClinicInfoIfMissing ===
+        "function"
+    ) {
+
+        promptClinicInfoIfMissing();
+
+    }
+
+
+    if (
         typeof updatePatientCount ===
         "function"
     ) {

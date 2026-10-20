@@ -2077,6 +2077,12 @@ function displaySecurity() {
 
         html += `
 
+            <div id="clinicInfoSettings"></div>
+
+        `;
+
+        html += `
+
             <div class="security-form-container">
 
                 <h2>
@@ -2235,6 +2241,12 @@ function displaySecurity() {
     container.innerHTML = html;
 
     if (isAdmin()) {
+
+        if (typeof renderClinicInfoSettings === "function") {
+
+            renderClinicInfoSettings("clinicInfoSettings");
+
+        }
 
         setupSecurityUserForm();
 
