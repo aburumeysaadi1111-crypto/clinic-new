@@ -7,7 +7,7 @@
  *  - የ Firebase SDK (gstatic.com፣ ስሪቱ የተወሰነ ነው)፦ አንድ ጊዜ ከተጫነ ከስልኩ ይነበባል።
  *  - ሌላ ማንኛውም ጥያቄ (Firestore፣ Auth ወዘተ) አይነካም፤ በቀጥታ ወደ ኢንተርኔት ይሄዳል።
  */
-const CACHE = "clinic-shell-v1";
+const CACHE = "clinic-shell-v2";
 const CACHE_PREFIX = "clinic-shell-";
 const SCOPE = self.registration.scope; // ለምሳሌ https://aburumeysaadi1111-crypto.github.io/clinic-new/
 const INDEX_URL = new URL("./", SCOPE).href;
@@ -22,6 +22,8 @@ const APP_FILES = [
   "ethiopian-date.js",
   "backup.js",
   "firestore-sync.js",
+  "clinic-info.js",
+  "diseases.js",
   "license.js",
   "security.js",
   "patients.js",
